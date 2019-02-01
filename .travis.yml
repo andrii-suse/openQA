@@ -8,13 +8,10 @@ env:
   matrix:
   - DOCKERFILE=direct_tests
   - DOCKERFILE=direct_tests_ui
-  - DOCKERFILE-direct_testfull_stack
-  - DOCKERFILE-direct_test05-scheduler_full
-  - DOCKERFILE-direct_test33-developer_mode
+  - DOCKERFILE=direct_testfull-stack
+  - DOCKERFILE=direct_test05-scheduler-full
+  - DOCKERFILE=direct_test33-developer_mode
 before_script:
 - docker pull anikitinsuse/openqabuildcache:latest
-cache:
-  directories:
-  - assets/cache
 script:
-- docker run -f docker/${DOCKERFILE}.Dockerfile --cache-from anikitinsuse/openqabuildcache:latest
+- docker build -f docker/${DOCKERFILE}.Dockerfile --cache-from anikitinsuse/openqabuildcache:latest .
