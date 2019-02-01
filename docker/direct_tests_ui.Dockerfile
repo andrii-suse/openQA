@@ -1,4 +1,4 @@
-# This Dockfileer was geneeerated from openQA Makefile with command
+# This Dockfile was generated from openQA Makefile with command
 # m4 -P -D M4_TEST=t/ui/*.t docker/direct_test.m4
 # And must be called from openQA project folder like
 # docker -f docker/<thisfile> .

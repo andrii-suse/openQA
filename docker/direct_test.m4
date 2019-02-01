@@ -1,5 +1,5 @@
 m4_dnl Comment below applies to generated file, not to this template
-# This Dockfileer was geneeerated from openQA Makefile with command
+# This Dockfile was generated from openQA Makefile with command
 `# m4 -P -D M4_TEST='M4_TEST docker/direct_test.m4
 # And must be called from openQA project folder like
 # docker -f docker/<thisfile> .
