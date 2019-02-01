@@ -140,6 +140,7 @@ COPY lib ./lib
 COPY script ./script
 COPY t/ ./t
 COPY templates/ ./templates
+RUN ./script/generate-packed-assets ./
 # postgres is not smart to start with root, so will use their user for testing
 ENV USER postgres
 ENV NORMAL_USER $USER
