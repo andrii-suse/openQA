@@ -122,4 +122,5 @@ RUN zypper in -y -C perl \
  perl-Archive-Extract \
  perl-Test-Simple
 
-RUN zypper in -y -C time vim
+# just let it be like that to avoid creating additional user
+ENV NORMAL_USER postgres

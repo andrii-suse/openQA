@@ -12,7 +12,7 @@ env:
   - DOCKERFILE=direct_test05-scheduler-full
   - DOCKERFILE=direct_test33-developer_mode
 before_script:
-- docker pull anikitinsuse/openqabuildcache:latest
+- docker pull registry.opensuse.org/devel/openqa/containers/openqa_dev:latest
 script:
 - make direct-test-dockerfiles
-- docker build -f docker/${DOCKERFILE}.Dockerfile --cache-from anikitinsuse/openqabuildcache:latest .
+- docker build -f docker/${DOCKERFILE}.Dockerfile .

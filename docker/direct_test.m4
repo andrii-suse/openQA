@@ -1,9 +1,9 @@
 m4_dnl Comment below applies to generated file, not to this template
 # This Dockfile was generated from openQA Makefile with command
-`# m4 -P -D M4_TEST='M4_TEST docker/direct_test.m4
+`# m4 -P -D M4_TEST='M4_TEST `-D M4_BASEIMAGE='M4_BASEIMAGE docker/direct_test.m4
 # And must be called from openQA project folder like
 # docker -f docker/<thisfile> .
-m4_include(docker/direct_test_cache)
+m4_ifelse(M4_BASEIMAGE,`',m4_include(docker/direct_test_cache),FROM M4_BASEIMAGE)
 m4_divert(-1)
 m4_define(`clone_autoinst',`
 WORKDIR /opt/os-autoinst
@@ -16,7 +16,7 @@ m4_ifelse(FULLSTACK,`1',`
 ENV FULL`'`'STACK 1
 ENV DEVELOPER_FULLSTACK 1
 ENV SCHEDULER_FULLSTACK 1')
-WORKDIR /opt/openqa
+WORKDIR /opt/testing_area
 
 COPY assets ./assets
 COPY cpanfile ./
@@ -28,20 +28,18 @@ COPY t/ ./t
 COPY templates/ ./templates
 # must retry because it uses external resourses which sporadically return 404
 RUN ( ./script/generate-packed-assets ./ || ( sleep 3; ./script/generate-packed-assets ./ ) || ( sleep 15; ./script/generate-packed-assets ./ ) )
-# postgres is not smart to start with root, so will use their user for testing
-ENV USER postgres
-ENV NORMAL_USER $USER
 ENV OPENQA_USE_DEFAULTS 1
-RUN chown -R $USER:$USER .
-m4_ifelse(FULLSTACK,`1',`RUN chown -R $USER:$USER ../os-autoinst', `')
-USER $USER
+RUN chown -R $NORMAL_USER:users .
+m4_ifelse(FULLSTACK,`1',`RUN chown -R $NORMAL_USER:users ../os-autoinst', `')
+USER ${NORMAL_USER}
+ENV USER ${NORMAL_USER}
 m4_divert(-1)
 m4_define(`DB_PATTERN',`"(Test::Database|OpenQA::Test::Case|OpenQA::Schema|setup_database)"')
 m4_define(`db_setup',
-ENV TEST_PG='DBI:Pg:dbname=openqa_test;host=/opt/openqa/tpg'
-RUN t/test_postgresql /opt/openqa/tpg
+ENV TEST_PG='DBI:Pg:dbname=openqa_test;host=/opt/testing_area/tpg'
+RUN t/test_postgresql /opt/testing_area/tpg
 RUN mkdir db
-ENV STARTDB='pg_ctl -D /opt/openqa/tpg -l logfile start')
+ENV STARTDB='pg_ctl -D /opt/testing_area/tpg -l logfile start')
 m4_syscmd(`grep -q -E' DB_PATTERN M4_TEST)
 m4_divert(0)
 m4_ifelse(m4_sysval, `0', `db_setup',`')
