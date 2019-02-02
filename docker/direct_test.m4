@@ -34,6 +34,8 @@ RUN chown -R $NORMAL_USER:users .
 m4_ifelse(FULLSTACK,`1',`RUN chown -R $NORMAL_USER:users ../os-autoinst', `')
 USER ${NORMAL_USER}
 ENV USER ${NORMAL_USER}
+# install eventual dependencies which may be missing in base image
+RUN cpanm -n --mirror http://no.where/ --installdeps .
 m4_divert(-1)
 m4_define(`DB_PATTERN',`"(Test::Database|OpenQA::Test::Case|OpenQA::Schema|setup_database)"')
 m4_define(`db_setup',
