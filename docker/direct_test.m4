@@ -27,7 +27,8 @@ COPY script ./script
 COPY t/ ./t
 COPY templates/ ./templates
 # must retry because it uses external resourses which sporadically return 404
-RUN ( ./script/generate-packed-assets ./ || ( sleep 3; ./script/generate-packed-assets ./ ) || ( sleep 15; ./script/generate-packed-assets ./ ) )
+# if still failing - let it go: maybe it will succeed from tests or tests will not need this
+RUN ( ./script/generate-packed-assets ./ || ( sleep 3; ./script/generate-packed-assets ./ ) || ( sleep 15; ./script/generate-packed-assets ./ ) || true )
 ENV OPENQA_USE_DEFAULTS 1
 RUN chown -R $NORMAL_USER:users .
 m4_ifelse(FULLSTACK,`1',`RUN chown -R $NORMAL_USER:users ../os-autoinst', `')
@@ -39,7 +40,8 @@ m4_define(`db_setup',
 ENV TEST_PG='DBI:Pg:dbname=openqa_test;host=/opt/testing_area/tpg'
 RUN t/test_postgresql /opt/testing_area/tpg
 RUN mkdir db
-ENV STARTDB='pg_ctl -D /opt/testing_area/tpg -l logfile start')
+# cannot use /dev/shm/tpg in Dockerfile as it will not survive between RUN commands
+ENV STARTDB='pg_ctl -w -D /opt/testing_area/tpg -l logfile start')
 m4_syscmd(`grep -q -E' DB_PATTERN M4_TEST)
 m4_divert(0)
 m4_ifelse(m4_sysval, `0', `db_setup',`')
@@ -49,9 +51,9 @@ m4_define(`foreach',`m4_ifelse(m4_eval($#>2),1,
 `'m4_ifelse(m4_eval($#>3),1,`$0(`$1',`$2',m4_shift(m4_shift(m4_shift($@))))')')')
 m4_define(`RUNCMD',RUN prove -v Xfile
 )
-m4_define(`RUNDBCMD',RUN ( $STARTDB; prove -v Xfile )
+m4_define(`RUNDBCMD',RUN ( $STARTDB && prove -v Xfile )
 )
-m4_define(`RUNDBBUSCMD',RUN ( $STARTDB; bus_start; prove -v Xfile )
+m4_define(`RUNDBBUSCMD',RUN ( $STARTDB && bus_start && prove -v Xfile )
 )
 m4_define(`GREP_NO_DB_PATTERN',`grep -L -E DB_PATTERN M4_TEST | tr "\n"' ``, | head -c -1'')
 m4_define(`GREP_DB_PATTERN',`grep -l -E DB_PATTERN M4_TEST | tr "\n"' ``, | head -c -1'')
