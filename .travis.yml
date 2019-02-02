@@ -12,7 +12,10 @@ env:
   - DOCKERFILE=direct_test05-scheduler-full
   - DOCKERFILE=direct_test33-developer_mode
 before_script:
+- make direct-test-dockerfiles
+- echo "START CONTENT OF GENERATED DOCKERFILE"
+- cat docker/${DOCKERFILE}.Dockerfile
+- echo "END CONTENT OF GENERATED DOCKERFILE"
 - docker pull registry.opensuse.org/devel/openqa/containers/openqa_dev:latest
 script:
-- make direct-test-dockerfiles
 - docker build -f docker/${DOCKERFILE}.Dockerfile .
