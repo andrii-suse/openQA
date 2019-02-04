@@ -8,14 +8,14 @@ env:
   matrix:
   - DOCKERFILE=direct_tests
   - DOCKERFILE=direct_tests.Codecov
-# - DOCKERFILE=direct_tests_ui
-# - DOCKERFILE=direct_tests_ui.Codecov
-# - DOCKERFILE=direct_testfull-stack
-# - DOCKERFILE=direct_testfull-stack.Codecov
-# - DOCKERFILE=direct_test05-scheduler-full
-# - DOCKERFILE=direct_test05-scheduler-full.Codecov
-# - DOCKERFILE=direct_test33-developer_mode
-# - DOCKERFILE=direct_test33-developer_mode.Codecov
+  - DOCKERFILE=direct_tests_ui
+  - DOCKERFILE=direct_tests_ui.Codecov
+  - DOCKERFILE=direct_testfull-stack
+  - DOCKERFILE=direct_testfull-stack.Codecov
+  - DOCKERFILE=direct_test05-scheduler-full
+  - DOCKERFILE=direct_test05-scheduler-full.Codecov
+  - DOCKERFILE=direct_test33-developer_mode
+  - DOCKERFILE=direct_test33-developer_mode.Codecov
 before_script:
 - make direct-test-dockerfiles
 - echo "START CONTENT OF GENERATED DOCKERFILE"
