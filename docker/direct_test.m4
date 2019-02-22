@@ -70,4 +70,8 @@ foreach(`Xfile',`RUNCMD`'m4_define(`M4_COUNT',m4_incr(M4_COUNT))', m4_esyscmd(GR
 m4_syscmd(test $(GREP_DB_PATTERN | wc -c) -gt 3)
 m4_divert(-m4_sysval)
 foreach(`Xfile',`m4_ifelse(FULLSTACK,1,RUNDBBUSCMD,Xfile,t/14-grutasks.t,RUNDBBUSCMD,RUNDBCMD)'`m4_define(`M4_COUNT',m4_incr(M4_COUNT))', m4_esyscmd(GREP_DB_PATTERN))
+<<<<<<< HEAD
 m4_ifdef(`CODECOV',`RUN ( cover $COVER_OPTS -report codecov covers/* || true )',`')
+=======
+m4_ifdef(`CODECOV',`RUN ( cover -select_re ^lib/ -report codecov covers/* || true )',`')
+>>>>>>> docker_direct_tests_pr

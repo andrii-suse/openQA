@@ -122,5 +122,10 @@ RUN zypper in -y -C perl \
  perl-Archive-Extract \
  perl-Test-Simple
 
+<<<<<<< HEAD
+=======
+RUN zypper in -y -C time vim
+
+>>>>>>> docker_direct_tests_pr
 # just let it be like that to avoid creating additional user
 ENV NORMAL_USER postgres
