@@ -69,4 +69,4 @@ foreach(`Xfile',`RUNCMD`'m4_define(`M4_COUNT',m4_incr(M4_COUNT))', m4_esyscmd(GR
 m4_syscmd(test $(GREP_DB_PATTERN | wc -c) -gt 3)
 m4_divert(-m4_sysval)
 foreach(`Xfile',`m4_ifelse(FULLSTACK,1,RUNDBBUSCMD,Xfile,t/14-grutasks.t,RUNDBBUSCMD,RUNDBCMD)'`m4_define(`M4_COUNT',m4_incr(M4_COUNT))', m4_esyscmd(GREP_DB_PATTERN))
-m4_ifdef(`COVER_REPORT_OPTS',`RUN ( cover COVER_REPORT_OPTS -report codecov covers/* || true )',`')
+m4_ifdef(`COVER_REPORT_OPTS',`RUN ( cover COVER_REPORT_OPTS -report codecov m4_ifelse(FULLSTACK,1,`',covers/2) covers/* || true )',`')
