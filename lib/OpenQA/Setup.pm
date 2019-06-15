@@ -168,6 +168,11 @@ sub read_config {
             exchange          => 'pubsub',
             topic_prefix      => 'suse',
         },
+        obs_rsync_integration => {
+            enabled => 0,
+            home    => '',
+            mapping => '',
+        },
         default_group_limits => {
             asset_size_limit                  => OpenQA::Schema::JobGroupDefaults::SIZE_LIMIT_GB,
             log_storage_duration              => OpenQA::Schema::JobGroupDefaults::KEEP_LOGS_IN_DAYS,
@@ -233,6 +238,24 @@ sub read_config {
 # Update config definition from plugin requests
 sub update_config {
     my ($config, @namespaces) = @_;
+    if ($config->{obs_rsync_integration}->{enabled}) {
+        if ($config->{obs_rsync_integration}->{home} eq "") {
+            if ($config->{branding} eq "openSUSE") {
+                $config->{obs_rsync_integration}->{home} = "/var/lib/openqa-trigger-from-obs";
+            }
+            elsif ($config->{branding} eq "openqa.suse.de") {
+                $config->{obs_rsync_integration}->{home} = "/var/lib/openqa-trigger-from-ibs";
+            }
+        }
+        my %m;
+        for (split /\s+/, $config->{obs_rsync_integration}->{mapping}) {
+            my ($obs_proj, $group_id) = split /\|/;
+            next unless $group_id;
+            $m{$group_id} = $obs_proj;
+        }
+        $config->{obs_rsync_integration}->{mapping} = \%m;
+    }
+
     return unless exists $config->{ini_config};
 
     # Filter out what plugins are loaded from the used namespaces

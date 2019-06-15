@@ -433,6 +433,15 @@ sub startup {
     # api/v1/feature
     $api_ru->post('/feature')->name('apiv1_post_informed_about')->to('feature#informed');
 
+    # OBS Synchronization
+    if ($self->app->config->{obs_rsync_integration}->{enabled} && $self->app->config->{obs_rsync_integration}->{home}) {
+        $api_public_r->get('/obs_rsync/<groupid:num>')->name('obs_rsync')->to('obs_rsync#index');
+        $api_public_r->get('/obs_rsync/#folder')->name('obs_rsync_logs')->to('obs_rsync#logs');
+        $api_public_r->get('/obs_rsync/logs/#folder/#subfolder')->name('obs_rsync_logfiles')->to('obs_rsync#logfiles');
+        $api_public_r->get('/obs_rsync/logs/#folder/#subfolder/#filename')->name('obs_rsync_download_file')
+          ->to('obs_rsync#download_file');
+    }
+
     # Parse API controller modules for POD
     get_pod_from_controllers(@api_routes);
     # Set API descriptions

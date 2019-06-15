@@ -173,6 +173,14 @@ sub group_overview {
     $self->stash('comment_put_action',    'apiv1_put_' . $comment_context_route_suffix);
     $self->stash('comment_delete_action', 'apiv1_delete_' . $comment_context_route_suffix);
 
+    my $obs_rsync_integration_enabled
+      = (    $self->app->config->{obs_rsync_integration}->{enabled}
+          && $self->app->config->{obs_rsync_integration}->{home}
+          && exists($self->app->config->{obs_rsync_integration}->{mapping}->{$group->id})
+          && -d $self->app->config->{obs_rsync_integration}->{home} . '/'
+          . $self->app->config->{obs_rsync_integration}->{mapping}->{$group->id});
+    $self->stash('obs_rsync_integration_enabled', $obs_rsync_integration_enabled);
+
     $self->respond_to(
         json => sub {
             @comments        = map($_->hash, @comments);
