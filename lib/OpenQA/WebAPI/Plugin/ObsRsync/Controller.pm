@@ -17,7 +17,7 @@
 package OpenQA::WebAPI::Plugin::ObsRsync::Controller;
 use Mojo::Base 'Mojolicious::Controller';
 use Mojo::File;
-use IPC::System::Simple qw(system $EXITVAL);
+use OpenQA::WebAPI::Plugin::ObsRsync::Runner;
 
 sub _home {
     my $self = shift;
@@ -29,8 +29,8 @@ sub index {
     my $folder = $self->param('folder');
     return undef if $self->_check_and_render_error($folder);
     my $files
-      = Mojo::File->new($self->_home)->list({dir => 1})->grep(sub { -d $_ })->map('basename')
-      ->grep(qr/^(?!test|WebAPIPlugin|__pycache__)/)->to_array;
+      = Mojo::File->new($self->_home)->list({dir => 1})->grep(sub { -d $_ })->map('basename')->grep(qr/^(?!t$|sle$)/)
+      ->to_array;
 
     $self->render('ObsRsync_index', folders => $files);
 }
@@ -51,7 +51,7 @@ sub folder {
         read_files_sh   => $files->grep(qr/read_files\.sh/)->join(),
         rsync_commands  => $files->grep(qr/rsync_.*\.cmd/)->to_array,
         rsync_sh        => $files->grep(qr/print_rsync.*\.sh/)->to_array,
-        openqa_commands => $files->grep(qr/openqa\.cmd/)->join(),
+        openqa_commands => $files->grep(qr/openqa\.cmd/)->to_array,
         openqa_sh       => $files->grep(qr/print_openqa\.sh/)->join());
 }
 
@@ -99,13 +99,9 @@ sub run {
     my $folder = $self->param('folder');
     return undef if $self->_check_and_render_error($folder);
 
-    my @args = ($self->_home . "/rsync.sh", $folder);
+    my $res = OpenQA::WebAPI::Plugin::ObsRsync::Runner::Run($self->_home, $folder);
 
-    my $out;
-    eval { $out = system([0], "bash", @args); 1 }
-      or return $self->render(json => {output => $@, code => $EXITVAL}, status => 500);
-
-    return $self->render(json => {output => $out, code => $EXITVAL}, status => 201);
+    return $self->render(json => {output => 'Async call rsync.sh'}, status => $res ? 503 : 201);
 }
 
 sub _check_and_render_error {
