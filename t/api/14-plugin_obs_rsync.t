@@ -27,16 +27,20 @@ use Test::Mojo;
 use OpenQA::Test::Database;
 use OpenQA::Test::Case;
 use Mojo::File qw(tempdir path);
+use threads;
+use threads::shared;
 
 OpenQA::Test::Case->new->init_data;
 
 $ENV{OPENQA_CONFIG} = my $tempdir = tempdir;
-my $home = path(__FILE__)->dirname->dirname->child('data', 'openqa-trigger-from-obs');
+my $home       = path(__FILE__)->dirname->dirname->child('data', 'openqa-trigger-from-obs');
+my $jobs_limit = 3;
 $tempdir->child('openqa.ini')->spurt(<<"EOF");
 [global]
 plugins=ObsRsync
 [obs_rsync]
 home=$home
+jobs_limit=$jobs_limit
 EOF
 
 my $t = Test::Mojo->new('OpenQA::WebAPI');
@@ -69,5 +73,54 @@ $t->reset_session;
 $t->put_ok('/api/v1/obs_rsync/Leap:15.1:ToTest/runs')->status_is(201, "trigger rsync");
 $t->put_ok('/api/v1/obs_rsync/WRONGPROJECT/runs')->status_is(404, "trigger rsync wrong project");
 $t->put_ok('/admin/obs_rsync/Leap:15.1:ToTest/runs')->status_is(404, "trigger rsync non-api path");
+
+subtest 'runner counter' => sub {
+    my $r = OpenQA::WebAPI::Plugin::ObsRsync::Runner::newRunner();
+    my $c : shared = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, $jobs_limit);
+    ok($c == 1);
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, 1);
+    ok($c == 0);
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
+    ok($c == 0);
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, $jobs_limit);
+    ok($c == 1);
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
+    ok($c == 0);
+    async {
+        $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, $jobs_limit);
+    }
+    ->join();
+    ok($c == 1);
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, $jobs_limit);
+    ok($c == 2);
+    async {
+        $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
+    }
+    ->join();
+    ok($c == 1);
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
+    ok($c == 0);
+};
+
+subtest 'job limit' => sub {
+    # MockProjectLongProcessing causes job to sleep some sec, so we can reach job limit
+    for (my $i = 0; $i < $jobs_limit; $i++) {
+        $t->put_ok('/api/v1/obs_rsync/MockProjectLongProcessing/runs')->status_is(201, "trigger rsync");
+        $t->put_ok('/api/v1/obs_rsync/WRONGPROJECT/runs')->status_is(404, "trigger rsync wrong project");
+    }
+    # since limit is reached we should get 503
+    $t->put_ok('/api/v1/obs_rsync/MockProjectLongProcessing/runs')->status_is(503, "trigger rsync");
+    $t->put_ok('/api/v1/obs_rsync/MockProjectLongProcessing/runs')->status_is(503, "trigger rsync");
+    $t->put_ok('/api/v1/obs_rsync/Leap:15.1:ToTest/runs')->status_is(503, "trigger rsync");
+    $t->put_ok('/api/v1/obs_rsync/Leap:15.1:ToTest/runs')->status_is(503, "trigger rsync");
+    # incorrect project still returns 404
+    $t->put_ok('/api/v1/obs_rsync/WRONGPROJECT/runs')->status_is(404, "trigger rsync wrong project");
+    # sleep to let current jobs finish and new requests must succeed
+    sleep 4;
+    $t->put_ok('/api/v1/obs_rsync/MockProjectLongProcessing/runs')->status_is(201, "trigger rsync");
+    $t->put_ok('/api/v1/obs_rsync/Leap:15.1:ToTest/runs')->status_is(201, "trigger rsync");
+    $t->put_ok('/api/v1/obs_rsync/MockProjectLongProcessing/runs')->status_is(201, "trigger rsync");
+};
+
 
 done_testing();

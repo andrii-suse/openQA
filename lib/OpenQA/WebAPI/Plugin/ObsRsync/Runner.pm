@@ -18,23 +18,45 @@ package OpenQA::WebAPI::Plugin::ObsRsync::Runner;
 use strict;
 use warnings;
 use threads;
+use threads::shared;
 use IPC::System::Simple qw(system $EXITVAL);
-use Parallel::ForkManager;
 
-my $job_limit = 12;
-my $pm        = Parallel::ForkManager->new($job_limit);
+sub newRunner {
+    my $counter : shared = 0;
+    return \$counter;
+}
+
+sub _tryIncCounter {
+    my ($pointer, $limit) = @_;
+    lock $$pointer;
+    if ($$pointer >= $limit) {
+        return 0;
+    }
+    $$pointer = $$pointer + 1;
+}
+
+sub _decCounter {
+    my $pointer = shift;
+    lock $$pointer;
+    $$pointer = $$pointer - 1;
+}
+
+my $lock_timeout = 3600;
 
 sub Run {
-    my ($home, $folder) = @_;
-
+    my ($pointer, $app, $home, $limit, $retry_timeout, $folder) = @_;
     my @args = ($home . "/rsync.sh", $folder);
-    $pm->reap_finished_children;
-    my @pids         = $pm->running_procs;
-    my $current_jobs = @pids;
-    return $current_jobs if $current_jobs >= $job_limit;
-    $pm->start and return 0;
-    eval { system([0], "bash", @args); 1 };
-    $pm->finish;
+    if (!_tryIncCounter($pointer, $limit)) {
+        return 1 unless $retry_timeout;
+        sleep $retry_timeout;
+        return 1 unless _tryIncCounter($pointer, $limit);
+    }
+    async {
+        eval { system([0], "bash", @args); 1 };
+        _decCounter($pointer);
+    }
+    ->detach();
+    return 0;
 }
 
 1;
