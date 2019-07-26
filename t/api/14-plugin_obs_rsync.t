@@ -27,8 +27,7 @@ use Test::Mojo;
 use OpenQA::Test::Database;
 use OpenQA::Test::Case;
 use Mojo::File qw(tempdir path);
-use threads;
-use threads::shared;
+# use threads::shared;
 
 OpenQA::Test::Case->new->init_data;
 
@@ -86,17 +85,17 @@ subtest 'runner counter' => sub {
     ok($c == 1);
     $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
     ok($c == 0);
-    async {
-        $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, $jobs_limit);
-    }
-    ->join();
+    # async {
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, $jobs_limit);
+    # }
+    # ->join();
     ok($c == 1);
     $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_tryIncCounter($r, $jobs_limit);
     ok($c == 2);
-    async {
-        $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
-    }
-    ->join();
+    # async {
+    $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
+    # }
+    # ->join();
     ok($c == 1);
     $c = OpenQA::WebAPI::Plugin::ObsRsync::Runner::_decCounter($r);
     ok($c == 0);
