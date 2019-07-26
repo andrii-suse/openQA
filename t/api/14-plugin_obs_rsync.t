@@ -116,7 +116,7 @@ subtest 'job limit' => sub {
     # incorrect project still returns 404
     $t->put_ok('/api/v1/obs_rsync/WRONGPROJECT/runs')->status_is(404, "trigger rsync wrong project");
     # sleep to let current jobs finish and new requests must succeed
-    sleep 4;
+    sleep 5;
     $t->put_ok('/api/v1/obs_rsync/MockProjectLongProcessing/runs')->status_is(201, "trigger rsync");
     $t->put_ok('/api/v1/obs_rsync/Leap:15.1:ToTest/runs')->status_is(201, "trigger rsync");
     $t->put_ok('/api/v1/obs_rsync/MockProjectLongProcessing/runs')->status_is(201, "trigger rsync");
