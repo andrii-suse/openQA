@@ -19,7 +19,9 @@ use Mojo::Base 'Mojolicious::Controller';
 use Mojo::File;
 use OpenQA::WebAPI::Plugin::ObsRsync::Runner;
 
-my $runner = OpenQA::WebAPI::Plugin::ObsRsync::Runner::newRunner();
+sub init {
+    OpenQA::WebAPI::Plugin::ObsRsync::Runner::newRunner(shift);
+}
 
 sub _home {
     my $self = shift;
@@ -113,7 +115,7 @@ sub run {
     return undef if $self->_check_and_render_error($folder);
 
     my $limit = $self->_jobs_limit;
-    my $res   = OpenQA::WebAPI::Plugin::ObsRsync::Runner::Run($runner, $self->app, $self->_home, $self->_jobs_limit,
+    my $res   = OpenQA::WebAPI::Plugin::ObsRsync::Runner::Run($self->app, $self->_home, $self->_jobs_limit,
         $self->_retry_timeout, $folder);
 
     return $self->render(json => {output => 'Async call rsync.sh'}, status => $res ? 503 : 201);

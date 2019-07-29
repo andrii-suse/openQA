@@ -17,45 +17,35 @@
 package OpenQA::WebAPI::Plugin::ObsRsync::Runner;
 use strict;
 use warnings;
-use threads;
-use threads::shared;
 use IPC::System::Simple qw(system $EXITVAL);
 
 sub newRunner {
-    my $counter : shared = 0;
-    return \$counter;
-}
-
-sub _tryIncCounter {
-    my ($pointer, $limit) = @_;
-    lock $$pointer;
-    if ($$pointer >= $limit) {
-        return 0;
-    }
-    $$pointer = $$pointer + 1;
-}
-
-sub _decCounter {
-    my $pointer = shift;
-    lock $$pointer;
-    $$pointer = $$pointer - 1;
+    my $app = shift;
+    $app->minion->add_task(
+        obs_rsync => sub {
+            my ($job, $args) = @_;
+            eval { system([0], "bash", @$args); 1 };
+            $app->minion->unlock('obs_rsync_lock');
+            $job->finish($EXITVAL);
+        });
 }
 
 my $lock_timeout = 3600;
 
 sub Run {
-    my ($pointer, $app, $home, $limit, $retry_timeout, $folder) = @_;
-    my @args = ($home . "/rsync.sh", $folder);
-    if (!_tryIncCounter($pointer, $limit)) {
+    my ($app, $home, $limit, $retry_timeout, $folder) = @_;
+    my $minion = $app->minion;
+    my @args   = ($home . "/rsync.sh", $folder);
+
+    my $bool = $minion->lock('obs_rsync_lock', $lock_timeout, {limit => $limit});
+    if (!$bool) {
         return 1 unless $retry_timeout;
         sleep $retry_timeout;
-        return 1 unless _tryIncCounter($pointer, $limit);
+        $minion->lock('obs_rsync_lock', $lock_timeout, {limit => $limit}) or return 1;
     }
-    async {
-        eval { system([0], "bash", @args); 1 };
-        _decCounter($pointer);
-    }
-    ->detach();
+    my $id = $minion->enqueue(obs_rsync => [\@args]);
+    return 1 if not $id;
+    $minion->job($id)->start();
     return 0;
 }
 
