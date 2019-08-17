@@ -141,7 +141,6 @@ sub _queue {
     my $retry_interval = $app->obs_rsync->retry_interval;
     my $queue_limit    = $app->obs_rsync->queue_limit;
 
-
     my $results = $app->minion->backend->list_jobs(
         0,
         4 * $queue_limit,
@@ -168,11 +167,13 @@ sub _run {
     my $queue_limit    = $app->obs_rsync->queue_limit;
 
     return $job->retry({delay => $retry_interval}) if $app->obs_project->is_status_dirty($project);
-    return $job->retry({delay => $retry_interval})
-      unless my $guard = $app->minion->guard('obs_rsync_run_guard', $lock_timeout, {limit => $concurrency});
+    {
+        return $job->retry({delay => $retry_interval})
+          unless my $guard = $app->minion->guard('obs_rsync_run_guard', $lock_timeout, {limit => $concurrency});
 
-    $job->note(waitingconcurrencyslot => undef);
-    eval { system([0], "bash", "$home/rsync.sh", $project); };
+        $job->note(waitingconcurrencyslot => undef);
+        eval { system([0], "bash", "$home/rsync.sh", $project); };
+    }
     return $job->finish($EXITVAL);
 }
 
