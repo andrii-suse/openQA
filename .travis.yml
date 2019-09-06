@@ -5,6 +5,7 @@ services:
 env:
   global:
   - COMMIT_AUTHOR_EMAIL=skynet@open.qa
+  - DEBUG=1
 matrix:
   include:
     - name: "unit- and integration tests"
