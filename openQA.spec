@@ -236,7 +236,33 @@ rm \
     t/ui/*.t
 
 
-make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
+make test-with-database OBS_RUN=1 PROVE_ARGS='-l -r -v t/api/14-plugin_obs_rsync_async.t' TEST_PG_PATH=%{buildroot}/DB
 rm -rf %{buildroot}/DB
 %endif
 
